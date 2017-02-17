@@ -1,0 +1,7 @@
+h1 {
+    text-align: center;
+}
+
+#scans a.thumbnail:last-of-type {
+    margin-bottom: 0;
+}

@@ -1,0 +1,7 @@
+{
+    "name": "cyberbit/oasis",
+    "require": {
+        "twbs/bootstrap": "3.3.7",
+        "components/jquery": "1.12.4"
+    }
+}
