@@ -1,3 +1,4 @@
 /vendor/
-img/
 *.komodoproject
+img/raw*/
+img/cropped/
