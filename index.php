@@ -1,5 +1,5 @@
 <?php
-define("TITLE", "O.A.S.I.S. Client");
+define("TITLE", "O.A.S.I.S. Client TEST");
 
 // Image path
 define("IMG_PATH", "img/filter.php?filename=");
