@@ -22,22 +22,22 @@ switch ($_REQUEST['filter']) {
         $arg3 = $args[2];
         $arg4 = $args[3];
         break;
-	case "brightness":
-		if (isset($_REQUEST))
-		$filtertype = IMG_FILTER_BRIGHTNESS;
-	
-		if(count($args) != 1) break;
+    case "brightness":
+	if (isset($_REQUEST))
+	$filtertype = IMG_FILTER_BRIGHTNESS;
+
+	if(count($args) != 1) break;
 		
-		$arg1 = $args[0];
-		break;
-	case "contrast":
-			if (isset($_REQUEST))
-			$filtertype = IMG_FILTER_CONTRAST;
+	$arg1 = $args[0];
+	break;
+    case "contrast":
+	if (isset($_REQUEST))
+	$filtertype = IMG_FILTER_CONTRAST;
 		
-			if(count($args) != 1) break;
+	if(count($args) != 1) break;
 			
-			$arg1 = $args[0];
-			break;
+	$arg1 = $args[0];
+	break;
     default:
         break;
 }
