@@ -11,7 +11,6 @@ $arg3;
 $arg4;
 switch ($_REQUEST['filter']) {
     case "colorize":
-        if (isset($_REQUEST))
         $filtertype = IMG_FILTER_COLORIZE;
         
         // Parse arguments
@@ -23,7 +22,6 @@ switch ($_REQUEST['filter']) {
         $arg4 = $args[3];
         break;
     case "brightness":
-        if (isset($_REQUEST))
         $filtertype = IMG_FILTER_BRIGHTNESS;
 
         if(count($args) != 1) break;
@@ -31,7 +29,6 @@ switch ($_REQUEST['filter']) {
         $arg1 = $args[0];
         break;
     case "contrast":
-        if (isset($_REQUEST))
         $filtertype = IMG_FILTER_CONTRAST;
 
         if(count($args) != 1) break;
@@ -44,7 +41,14 @@ switch ($_REQUEST['filter']) {
 
 // Apply filter
 
-if ($filtertype !== false) imagefilter($image, $filtertype, $arg1, $arg2, $arg3, $arg4);
+if ($filtertype !== false) {
+    // Run appropriate function, depending on number of arguments
+    if (count($args) === 4) imagefilter($image, $filtertype, $arg1, $arg2, $arg3, $arg4);
+    elseif (count($args) === 3) imagefilter($image, $filtertype, $arg1, $arg2, $arg3);
+    elseif (count($args) === 2) imagefilter($image, $filtertype, $arg1, $arg2);
+    elseif (count($args) === 1) imagefilter($image, $filtertype, $arg1);
+    elseif (count($args) === 0) imagefilter($image, $filtertype);
+}
 
 // Output image
 header("Content-Type: image/jpeg");
