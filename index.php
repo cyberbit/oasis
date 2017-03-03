@@ -1,6 +1,6 @@
 <?php
 define("TITLE", "O.A.S.I.S. Client TEST");
-
+// this is a test change
 // Image path
 define("IMG_PATH", "img/filter.php?filename=");
 define("IMG_PAD", 2);
