@@ -82,6 +82,17 @@ define("IMG_HMAX", 8);
 			</div>
 		</div>
 		
+		<div class="factory">
+			<div class="scan-thumbnail thumbnail" data-scan-id="">
+				<a href="#" class="preview">
+					<img alt="scan">
+				</a>
+				<div class="caption">
+					<button type="button" class="btn btn-danger">Delete</button>
+				</div>
+			</div>
+		</div>
+		
 		<script>
             // Load PHP config
             var config = <?= json_encode(get_defined_constants(true)['user']) ?>;

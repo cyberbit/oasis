@@ -5,3 +5,7 @@ h1 {
 #scans .thumbnail:last-of-type {
     margin-bottom: 0;
 }
+
+.factory {
+    display: none;
+}
