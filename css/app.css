@@ -6,6 +6,23 @@ h1 {
     margin-bottom: 0;
 }
 
+#scans .panel-body {
+    overflow-y: auto;
+    max-height: 775px;
+}
+
 .factory {
     display: none;
+}
+
+.panel-msg {
+    margin: 0;
+}
+
+.empty {
+    display: none;
+}
+
+.empty:only-child {
+    display: block;
 }

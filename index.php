@@ -1,16 +1,5 @@
 <?php
-define("TITLE", "O.A.S.I.S. Client TEST");
-// this is a test change
-// Image path
-define("IMG_PATH", "img/filter.php?filename=");
-define("IMG_PAD", 2);
-
-// Image set
-define("IMG_VSTART", 1);
-define("IMG_HSTART", 1);
-define("IMG_VMAX", 2);
-define("IMG_HMAX", 8);
-
+require "config.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,25 +26,10 @@ define("IMG_HMAX", 8);
 				<div class="col-md-3 col-sm-4">
 					<div id="scans" class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title">Available Scans</h3>
+							<h3 class="panel-title">Available Scans <span class="badge"></span></h3>
 						</div>
 						<div class="panel-body">
-							<div class="thumbnail" data-scan-id="255,0,0">
-								<a href="#" class="preview">
-									<img alt="scan">
-								</a>
-								<div class="caption">
-									<button type="button" class="btn btn-danger">Delete</button>
-								</div>
-							</div>
-							<div class="thumbnail" data-scan-id="0,255,0">
-								<a href="#" class="preview">
-									<img alt="scan">
-								</a>
-								<div class="caption">
-									<button type="button" class="btn btn-danger">Delete</button>
-								</div>
-							</div>
+							<h3 class="empty panel-msg text-center">No scans available. Press <strong>Scan</strong> to request a new scan.</h3>
 						</div>
 					</div>
 				</div>
@@ -88,9 +62,10 @@ define("IMG_HMAX", 8);
 					<img alt="scan">
 				</a>
 				<div class="caption">
-					<button type="button" class="btn btn-danger">Delete</button>
+					<button type="button" class="delete btn btn-danger">Delete</button>
 				</div>
 			</div>
+			<h3 class="scan-loading panel-msg text-center"><i class="glyphicon glyphicon-hourglass"></i> Loading scans...</h3>
 		</div>
 		
 		<script>
