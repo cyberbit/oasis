@@ -12,4 +12,7 @@ define("IMG_VMAX", 2);
 define("IMG_HMAX", 8);
 
 define("API_PATH", "api.php");
+
+// Simulate load in API
+define("LOAD", false);
 ?>

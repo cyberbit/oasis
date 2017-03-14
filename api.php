@@ -19,7 +19,7 @@ $formDemoScan = function($id) {
 };
 
 // Simulate load
-for($i=0;$i<20000000;$i++);
+if (LOAD) for($i=0;$i<20000000;$i++);
 
 // Start session
 session_start();
