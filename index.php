@@ -19,6 +19,10 @@ require "config.php";
 				<div class="navbar-header">
 					<a class="navbar-brand" href="#"><?= TITLE ?></a>
 				</div>
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="/oasis/">Home</a></li>
+					<li><a href="/oasis/multifilter.php">Multi-filter Test</a></li>
+				</ul>
 			</div>
 		</nav>
 		<div class="container-fluid">
