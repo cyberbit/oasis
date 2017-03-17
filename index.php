@@ -22,6 +22,7 @@ define("IMG_HMAX", 8);
 	
 		<!-- Bootstrap -->
 		<link href="vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-slider.min.css" rel="stylesheet">
 		<link href="css/app.css" rel="stylesheet">
 	</head>
 	<body>
@@ -76,6 +77,23 @@ define("IMG_HMAX", 8);
 									<button type="button" class="btn btn-default" data-hdelta="+1"><i class="glyphicon glyphicon-triangle-right"></i></button>
 								</div>
 							</div>
+							<p></p>
+							<div>
+								<div id="controls" class="text-center">
+									<div class="panel-heading">
+										<h3 class="panel-title">Brightness</h3>
+									<input id="brightness" data-slider-id='ex1Slider' type="text" data-slider-min="-255" data-slider-max="255" data-slider-step="1" data-slider-value="0"/>
+									</div>
+								</div>
+							</div>
+							<div>
+								<div id="controls" class="text-center">
+									<div class="panel-heading">
+										<h3 class="panel-title">Contrast</h3>
+									<input id="contrast" data-slider-id='ex2Slider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -102,6 +120,7 @@ define("IMG_HMAX", 8);
 		<script src="vendor/components/jquery/jquery.min.js"></script>
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="js/bootstrap-slider.min.js"></script>
 		<script src="js/app.js"></script>
 	</body>
 </html>

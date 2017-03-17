@@ -119,3 +119,15 @@ function rotateView(view, vDelta, hDelta) {
 function padString(string, pad) {
     return ("0".repeat(pad) + string).slice(pad * -1);
 }
+
+$('#brightness').slider({
+	formatter: function(value) {
+		return 'Current value: ' + value;
+	}
+});
+
+$('#contrast').slider({
+	formatter: function(value) {
+		return 'Current value: ' + value;
+	}
+});

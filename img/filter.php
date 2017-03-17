@@ -9,6 +9,21 @@ $arg1;
 $arg2;
 $arg3;
 $arg4;
+
+//filter=negate
+//$filter = "negate"
+//
+//filter[]=negate
+//$_REQUEST['filter'] = ["negate", "colorize"]
+//
+//$_REQUEST = [
+//	"personal" => [
+//		"name" => "some value",
+//		"email" => "some value"
+//	],
+//	"beer" => ["warthog", "guinness"]
+//];
+
 switch ($_REQUEST['filter']) {
     case "colorize":
         $filtertype = IMG_FILTER_COLORIZE;
@@ -35,6 +50,11 @@ switch ($_REQUEST['filter']) {
 
         $arg1 = $args[0];
         break;
+    case "negate":
+        $filtertype = IMG_FILTER_NEGATE;
+
+		if(count($args) != 0) break;
+		
     default:
         break;
 }
