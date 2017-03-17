@@ -275,7 +275,17 @@ function padString(string, pad) {
     return ("0".repeat(pad) + string).slice(pad * -1);
 }
 
-// Clone factory item
+$('#brightness').slider({
+	formatter: function(value) {
+		return 'Current value: ' + value;
+	}
+});
+
+$('#contrast').slider({
+	formatter: function(value) {
+		return 'Current value: ' + value;
+	}
+});// Clone factory item
 function factory(parent, key) {
 	return $(parent + " " + key).clone();
 }
