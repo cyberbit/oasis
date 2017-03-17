@@ -1,19 +1,43 @@
 <?php
+require "config.php";
+
 // Display errors
 error_reporting(E_ALL);
 ini_set("display_errors", '1');
 
-// IDs for demo scans
-$scans = ["255,0,0", "0,255,0"];
+// Helper function for forming demo scan structure
+$formDemoScan = function($id) {
+    return [
+        "id" => $id,
+        "path" => IMG_PATH,
+        "pad" => IMG_PAD,
+        "vMin" => IMG_VSTART,
+        "hMin" => IMG_HSTART,
+        "vMax" => IMG_VMAX,
+        "hMax" => IMG_HMAX
+    ];
+};
+
+// Simulate load
+if (LOAD) for($i=0;$i<20000000;$i++);
+
+// Start session
+session_start();
+
+// Set up demo scans
+if (!isset($_SESSION['scans'])) $_SESSION['scans'] = ["255,0,0", "0,255,0"];
+
+// Demo scans
+$scans = array_map($formDemoScan, $_SESSION['scans']);
 
 // Grab URL parameters
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : "";
 $id     = isset($_REQUEST['id']) ? $_REQUEST['id'] : "";
+$cmd    = isset($_REQUEST['command']) ? $_REQUEST['command'] : "";
 
 // Default data
 $dataDefault = [
-    "context" => "danger",
-    "msg" => "Oops!",
+    "context" => "danger"
 ];
 $data = [];
 $success = false;
@@ -41,18 +65,16 @@ switch ($action) {
      */
     case "scan":
         // Generate random ID (color)
-        $newId = implode(",", [rand(0, 255), rand(0, 255), rand(0, 255)]);
+        $newId = implode(",", [rand(-255, 255), rand(-255, 255), rand(-255, 255)]);
+        
+        // Add scan to session
+        $_SESSION['scans'][] = $newId;
+        
+        // Form output
         $data = [
             "context" => "success",
-            "msg" => "Scan complete!",
-            "data" => [
-                "id" => $newId,
-                "path" => "img/",
-                "vMin" => 1,
-                "hMin" => 1,
-                "vMax" => 8,
-                "hMax" => 2
-            ]
+            "msg" => "Scanned!",
+            "data" => $formDemoScan($newId)
         ];
         
         $success = true;
@@ -71,7 +93,6 @@ switch ($action) {
     case "scans":
         $data = [
             "context" => "success",
-            "msg" => "Available scans",
             "data" => $scans
         ];
         
@@ -91,7 +112,7 @@ switch ($action) {
     case "selftest":
         $data = [
             "context" => "success",
-            "msg" => "Self-test complete!"
+            "msg" => "Done!"
         ];
         
         $success = true;
@@ -109,6 +130,9 @@ switch ($action) {
      *      images  Number of images deleted.
      */
     case "delete":
+        // Delete scan
+        $_SESSION['scans'] = array_diff($_SESSION['scans'], [$id]);
+        
         $data = [
             "context" => "success",
             "msg" => "Deleted scan '$id'",
@@ -122,11 +146,56 @@ switch ($action) {
         
         break;
     
+    /**
+     * Run command with Python. Note that this is for
+     * testing purposes only.
+     *
+     * Requires:
+     *      command Command to run. Must not include
+     *              double quotes.
+     *
+     * Returns (on success):
+     *      output  Command output. Each line is an
+     *              entry in the array.
+     *      return  Return of the command (exit code).
+     */ 
+    case "python":
+        exec("python -c \"$cmd\"", $output, $return);
+        
+        $data = [
+            "context" => "success",
+            "msg" => "Python command \"$cmd\" run.",
+            "data" => [
+                "output" => $output,
+                "return" => $return
+            ]
+        ];
+        
+        $success = true;
+        
+        break;
+    
+    /**
+     * Show phpinfo() page.
+     *
+     * Requires:
+     *      No parameters.
+     *
+     * Returns:
+     *      phpinfo() page.
+     */
+    case "phpinfo":
+        phpinfo();
+        die;
+        
+        break;
+    
     // Unknown action
     default:
         $data = [
             "error" => "Unknown action: '$action'"
         ];
+        
         break;
 }
 
