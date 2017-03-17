@@ -13,6 +13,7 @@ define("IMG_HMAX", 8);
 
 define("API_PATH", "api.php");
 
-// Simulate load in API
+// Toggle demo flags
 define("LOAD", false);
+define("DEMO", !true);
 ?>

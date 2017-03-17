@@ -18,6 +18,27 @@ $formDemoScan = function($id) {
     ];
 };
 
+// Helper function for forming actual scan structure
+$formScan = function($path) {
+    // Check path. If invalid, return error
+    
+    // Read list of images from path
+    
+    /**
+     * Parse metadata from image list:
+     *      id      Parsed from path.
+     *      path    As passed to function.
+     *      pad     Kevin is hard-coding to 2.
+     *      
+     *      vMin    All of these will be calculated
+     *      hMin    based on the minimum and maximum
+     *      vMax    values for each position in the
+     *      hMax    image filename.
+     */
+    
+    // Return data structure
+};
+
 // Simulate load
 if (LOAD) for($i=0;$i<20000000;$i++);
 
@@ -25,14 +46,11 @@ if (LOAD) for($i=0;$i<20000000;$i++);
 session_start();
 
 // Set up demo scans
-if (!isset($_SESSION['scans'])) $_SESSION['scans'] = ["255,0,0", "0,255,0"];
-
-// Demo scans
-$scans = array_map($formDemoScan, $_SESSION['scans']);
+if (DEMO and !isset($_SESSION['scans'])) $_SESSION['scans'] = ["255,0,0", "0,255,0"];
 
 // Grab URL parameters
-$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : "";
-$id     = isset($_REQUEST['id']) ? $_REQUEST['id'] : "";
+$action = isset($_REQUEST['action'])  ? $_REQUEST['action']  : "";
+$id     = isset($_REQUEST['id'])      ? $_REQUEST['id']      : "";
 $cmd    = isset($_REQUEST['command']) ? $_REQUEST['command'] : "";
 
 // Default data
@@ -64,18 +82,33 @@ switch ($action) {
      *      hMax    Maximum horizontal index.
      */
     case "scan":
-        // Generate random ID (color)
-        $newId = implode(",", [rand(-255, 255), rand(-255, 255), rand(-255, 255)]);
+        if (DEMO) {
+            // Generate random ID (color)
+            $newId = implode(",", [rand(-255, 255), rand(-255, 255), rand(-255, 255)]);
+            
+            // Add scan to session
+            $_SESSION['scans'][] = $newId;
+            
+            // Form output
+            $data = [
+                "context" => "success",
+                "msg" => "Scanned!",
+                "data" => $formDemoScan($newId)
+            ];
+        }
         
-        // Add scan to session
-        $_SESSION['scans'][] = $newId;
-        
-        // Form output
-        $data = [
-            "context" => "success",
-            "msg" => "Scanned!",
-            "data" => $formDemoScan($newId)
-        ];
+        else {
+            // Request scan via Python
+            
+            // Form scan based on path returned by Python
+            
+            // Form output
+            $data = [
+                "context" => "success",
+                "msg" => "Scanned!",
+                "data" => ["change" => 2, "scan" => "structure"]
+            ];
+        }
         
         $success = true;
         
@@ -88,13 +121,29 @@ switch ($action) {
      *      No parameters.
      *
      * Returns (on success):
-     *      id      Array of available scan IDs.
+     *      id      Array of available scans, fully formed.
      */
     case "scans":
-        $data = [
-            "context" => "success",
-            "data" => $scans
-        ];
+        if (DEMO) {
+            // Demo scans
+            $scans = array_map($formDemoScan, $_SESSION['scans']);
+            $data = [
+                "context" => "success",
+                "data" => $scans
+            ];
+        }
+        
+        else {
+            // Read list of directories from master scan directory
+            
+            // Iterate scan list and form scan for each item
+            
+            // Return scan list
+            $data = [
+                "context" => "success",
+                "data" => ["change" => 2, "array_of" => ["scans", "available"]]
+            ];
+        }
         
         $success = true;
         
@@ -110,10 +159,23 @@ switch ($action) {
      *      Standard success message.
      */
     case "selftest":
-        $data = [
-            "context" => "success",
-            "msg" => "Done!"
-        ];
+        if (DEMO) {
+            $data = [
+                "context" => "success",
+                "msg" => "Done!"
+            ];
+        }
+        
+        else {
+            // Request self-test via Python
+            
+            // Return any output from script
+            $data = [
+                "context" => "success",
+                "msg" => "Done!",
+                "data" => ["change" => 2, "script" => "output"]
+            ];
+        }
         
         $success = true;
         
@@ -130,17 +192,24 @@ switch ($action) {
      *      images  Number of images deleted.
      */
     case "delete":
-        // Delete scan
-        $_SESSION['scans'] = array_diff($_SESSION['scans'], [$id]);
+        if (DEMO) {
+            // Delete scan
+            $_SESSION['scans'] = array_diff($_SESSION['scans'], [$id]);
+            
+            $data = [
+                "context" => "success",
+                "msg" => "Deleted scan '$id'",
+                "data" => [
+                    "id" => $id,
+                    "images" => 16
+                ]
+            ];
+        }
         
-        $data = [
-            "context" => "success",
-            "msg" => "Deleted scan '$id'",
-            "data" => [
-                "id" => $id,
-                "images" => 16
-            ]
-        ];
+        else {
+            
+        }
+        
         
         $success = true;
         
