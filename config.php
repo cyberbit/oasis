@@ -15,5 +15,5 @@ define("API_PATH", "api.php");
 
 // Toggle demo flags
 define("LOAD", false);
-define("DEMO", !true);
+define("DEMO", true);
 ?>
