@@ -9,6 +9,7 @@ ini_set("display_errors", '1');
 $formDemoScan = function($id) {
     return [
         "id" => $id,
+        "filters" => $_SESSION['filters'][$id],
         "path" => IMG_PATH,
         "pad" => IMG_PAD,
         "vMin" => IMG_VSTART,
@@ -45,8 +46,12 @@ if (LOAD) for($i=0;$i<20000000;$i++);
 // Start session
 session_start();
 
-// Set up demo scans
-if (DEMO and !isset($_SESSION['scans'])) $_SESSION['scans'] = ["255,0,0", "0,255,0"];
+// Set up demo scans and filters
+if (DEMO and !isset($_SESSION['scans'])) $_SESSION['scans'] = ["demo1", "demo2"];
+if (DEMO and !isset($_SESSION['filters'])) $_SESSION['filters'] = [
+    "demo1" => [["colorize", [255, 0, 0, 64]]],
+    "demo2" => [["colorize", [0, 255, 0, 64]]]
+];
 
 // Grab URL parameters
 $action = isset($_REQUEST['action'])  ? $_REQUEST['action']  : "";
@@ -78,16 +83,20 @@ switch ($action) {
      *      pad     Zero-padding for numbers in path.
      *      vMin    Minimum vertical index.
      *      hMin    Minimum horizontal index.
-     *      vMax    Maximum vertical index.
+     *      vMax    Maximum vertical index. 
      *      hMax    Maximum horizontal index.
      */
     case "scan":
         if (DEMO) {
-            // Generate random ID (color)
-            $newId = implode(",", [rand(-255, 255), rand(-255, 255), rand(-255, 255)]);
+            // Generate random filter parameters and ID
+            $color = [rand(-255, 255), rand(-255, 255), rand(-255, 255), 64];
+            $newId = substr(sha1(implode(",", $color)), 0, 7);
             
             // Add scan to session
             $_SESSION['scans'][] = $newId;
+            
+            // Add demo filters to session
+            $_SESSION['filters'][$newId] = [["colorize", $color]];
             
             // Form output
             $data = [
@@ -207,7 +216,20 @@ switch ($action) {
         }
         
         else {
+            // Find directory of images
             
+            // Count images in directory
+            
+            // Delete all images
+            
+            // Delete directory
+            
+            // Return appropriate information
+            $data = [
+                "context" => "success",
+                "msg" => "Deleted scan '$id'",
+                "data" => ["id" => "and numDeleted"]
+            ];
         }
         
         
