@@ -70,7 +70,7 @@ function initScans(selector, meta) {
         var $preview = $scan.find(".preview");
         
         // Add preview image
-        $preview.find("img").attr("src", scanPath(id, 1, 1, meta.filters));
+        $preview.find("img").attr("src", scanPath(id, 1, 1, $.merge([], meta.filters)));
         
         // Preview click handler
         $preview.click(function() {
@@ -225,7 +225,7 @@ function loadImg(v, h) {
     var $view = $("#view");
     
     // Format image path
-    var path = scanPath(scanId, v, h, view.filters);
+    var path = scanPath(scanId, v, h, $.merge([], view.filters));
     
     // Load image
     $view.attr("src", path);
@@ -257,12 +257,18 @@ function scanPath(id, v, h, filters) {
         args: []
     };
     
+    
+    var brightness = $("#brightness").val();
+    var contrast = $("#contrast").val();
+    
+    filters.push(["brightness", [brightness]], ["contrast", [contrast]]);
+    
     // Parse filters into parameters
     $.each(filters, function(i, v) {
         params.filter.push(v[0]);
         params.args.push(v[1].join(","));
     });
-    
+
     console.log("filter paramaters: %o", $.param(params));
     
     return config.IMG_PATH +
@@ -299,7 +305,9 @@ $('#contrast').slider({
 	formatter: function(value) {
 		return 'Current value: ' + value;
 	}
-});// Clone factory item
+});
+
+// Clone factory item
 function factory(parent, key) {
 	return $(parent + " " + key).clone();
 }
