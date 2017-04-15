@@ -1,6 +1,10 @@
 <?php
 // Load image
 $image = imagecreatefromjpeg($_REQUEST['filename']);
+
+// Scale image
+$scaledImage = imagescale($image, 600, 400);
+
 $filterArray = is_array($_REQUEST['filter']) ? $_REQUEST['filter'] : [$_REQUEST['filter']];
 $argsArray = is_array($_REQUEST['args']) ? $_REQUEST['args'] : [$_REQUEST['args']];
 
@@ -49,11 +53,11 @@ foreach ($filters as $filter=>$argString) {
 	// Apply filter
 	if ($filtertype !== false) {
 		// Run appropriate function, depending on number of arguments
-		if (count($args) === 4) imagefilter($image, $filtertype, $arg1, $arg2, $arg3, $arg4);
-		elseif (count($args) === 3) imagefilter($image, $filtertype, $arg1, $arg2, $arg3);
-		elseif (count($args) === 2) imagefilter($image, $filtertype, $arg1, $arg2);
-		elseif (count($args) === 1) imagefilter($image, $filtertype, $arg1);
-		elseif (count($args) === 0) imagefilter($image, $filtertype);
+		if (count($args) === 4) imagefilter($scaledImage, $filtertype, $arg1, $arg2, $arg3, $arg4);
+		elseif (count($args) === 3) imagefilter($scaledImage, $filtertype, $arg1, $arg2, $arg3);
+		elseif (count($args) === 2) imagefilter($scaledImage, $filtertype, $arg1, $arg2);
+		elseif (count($args) === 1) imagefilter($scaledImage, $filtertype, $arg1);
+		elseif (count($args) === 0) imagefilter($scaledImage, $filtertype);
 	}
 }
 
@@ -61,6 +65,7 @@ foreach ($filters as $filter=>$argString) {
 header("Content-Type: image/jpeg");
 header("Expires: ".gmdate("D, d M Y H:i:s", time()+1800)." GMT");
 header("Cache-Control: max-age=1800");
-imagejpeg($image);
+imagejpeg($scaledImage);
+imagedestroy($scaledImage);
 imagedestroy($image);
 ?>

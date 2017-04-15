@@ -7,9 +7,11 @@ ini_set("display_errors", '1');
 
 // Helper function for forming demo scan structure
 $formDemoScan = function($id) {
+    $imgPath = ($id == "Oasis" ? IMG_PATH."OASIS/oasis_test" : IMG_PATH);
+    
     return [
         "id" => $id,
-        "path" => IMG_PATH,
+        "path" => $imgPath,
         "pad" => IMG_PAD,
         "vMin" => IMG_VSTART,
         "hMin" => IMG_HSTART,
@@ -21,8 +23,13 @@ $formDemoScan = function($id) {
 // Helper function for forming actual scan structure
 $formScan = function($path) {
     // Check path. If invalid, return error
+    if (!is_dir($path)) return false;
+    
+    // Get scan ID
+    $scanId = array_reverse(explode(DIRECTORY_SEPARATOR, $path))[0];
     
     // Read list of images from path
+    $dir = array_values(array_diff(scandir($path), [".", ".."]));
     
     /**
      * Parse metadata from image list:
@@ -36,7 +43,37 @@ $formScan = function($path) {
      *      hMax    image filename.
      */
     
+    // Scan is empty
+    if (empty($dir)) return false;
+    
+    // Parse image list into number list
+    $parse = array_map(function($v) {
+        $numbers = explode("_", explode(".", str_replace("Oasis", "", $v))[0]);
+        
+        foreach ($numbers as &$num) $num = intval($num);
+        
+        return $numbers;
+    }, $dir);
+    
+    // Determine minimum and maximum for each column
+    $vArray = array_column($parse, 0);
+    $hArray = array_column($parse, 1);
+    
+    $vMin = min($vArray);
+    $vMax = max($vArray);
+    $hMin = min($hArray);
+    $hMax = max($hArray);
+    
     // Return data structure
+    return [
+        "id" => $scanId,
+        "path" => dirname($path),
+        "pad" => 2,
+        "vMin" => $vMin,
+        "vMax" => $vMax,
+        "hMin" => $hMin,
+        "hMax" => $hMax
+    ];
 };
 
 // Simulate load
@@ -46,7 +83,7 @@ if (LOAD) for($i=0;$i<20000000;$i++);
 session_start();
 
 // Set up demo scans
-if (DEMO and !isset($_SESSION['scans'])) $_SESSION['scans'] = ["255,0,0", "0,255,0"];
+if (DEMO and !isset($_SESSION['scans'])) $_SESSION['scans'] = ["255,0,0", "0,255,0", "oasis"];
 
 // Grab URL parameters
 $action = isset($_REQUEST['action'])  ? $_REQUEST['action']  : "";
@@ -98,19 +135,39 @@ switch ($action) {
         }
         
         else {
+            // Command to run
+            $exec = "python ".SCAN_SCRIPT." -i ".SCAN_DIR." -t \"".SCAN_QUALITY."\" 2>&1";
+            
             // Request scan via Python
+            exec($exec, $output, $return);
             
-            // Form scan based on path returned by Python
+            // Some error occurred
+            if ($return) {
+                $data = [
+                    "msg" => "Oops!",
+                    "error" => [
+                        "exec" => $exec,
+                        "output" => $output,
+                        "return" => $return
+                    ]
+                ];
+            }
             
-            // Form output
-            $data = [
-                "context" => "success",
-                "msg" => "Scanned!",
-                "data" => ["change" => 2, "scan" => "structure"]
-            ];
+            // No errors
+            else {
+                // Form scan based on path returned by Python
+                $scan = $formScan($output[0]);
+                
+                // Form output
+                $data = [
+                    "context" => "success",
+                    "msg" => "Scanned!",
+                    "data" => $scan
+                ];
+                
+                $success = true;
+            }
         }
-        
-        $success = true;
         
         break;
     
@@ -135,13 +192,26 @@ switch ($action) {
         
         else {
             // Read list of directories from master scan directory
+            $scanIDs = array_values(array_filter(array_diff(scandir(SCAN_DIR), [".", ".."]), function($v) {
+                return strstr($v, "scan_");
+            }));
+            
+            // Prepend scan directories with full scan path
+            $scanDirs = array_map(function($id) {
+                return SCAN_DIR."/".$id;
+            }, $scanIDs);
             
             // Iterate scan list and form scan for each item
+            $scans = array_values(array_filter(array_map($formScan, $scanDirs)));
             
             // Return scan list
             $data = [
                 "context" => "success",
-                "data" => ["change" => 2, "array_of" => ["scans", "available"]]
+                "data" => $scans,
+                "debug" => [
+                    "scanIDs" => $scanIDs,
+                    "scanDirs" => $scanDirs
+                ]
             ];
         }
         
@@ -237,6 +307,47 @@ switch ($action) {
             "data" => [
                 "output" => $output,
                 "return" => $return
+            ]
+        ];
+        
+        $success = true;
+        
+        break;
+    
+    /**
+     * Test parsing directory of pictures for metadata.
+     */
+    case "parseTest":
+        // Grab
+        $dir = array_values(array_diff(scandir(dirname(IMG_PATH)."/oasis_test"), [".", ".."]));
+        
+        // Parse image list into number list
+        $parse = array_map(function($v) {
+            $numbers = explode("_", explode(".", $v)[0]);
+            
+            foreach ($numbers as &$num) $num = intval($num);
+            
+            return $numbers;
+        }, $dir);
+        
+        // Determine minimum and maximum for each column
+        
+        $vArray = array_column($parse, 0);
+        $hArray = array_column($parse, 1);
+        
+        $vMin = min($vArray);
+        $vMax = max($vArray);
+        $hMin = min($hArray);
+        $hMax = max($hArray);
+        
+        $data = [
+            "context" => "success",
+            "msg" => "Parsed directory!",
+            "data" => [
+                "vMin" => $vMin,
+                "vMax" => $vMax,
+                "hMin" => $hMin,
+                "hMax" => $hMax
             ]
         ];
         

@@ -5,7 +5,11 @@ define("TITLE", "O.A.S.I.S. Client");
 define("IMG_PATH", "img/filter.php?filename=");
 define("IMG_PAD", 2);
 
-// Image set
+define("SCAN_DIR", "/home/pi/scantest");
+define("SCAN_SCRIPT", SCAN_DIR."/OasisScanTest.py");
+define("SCAN_QUALITY", "very fine"); // standard, fine, very fine
+
+// Image parameters for demo mode
 define("IMG_VSTART", 1);
 define("IMG_HSTART", 1);
 define("IMG_VMAX", 2);
@@ -15,5 +19,5 @@ define("API_PATH", "api.php");
 
 // Toggle demo flags
 define("LOAD", false);
-define("DEMO", true);
+define("DEMO", false);
 ?>
