@@ -8,9 +8,6 @@ var view = {
     hMax: 1
 };
 
-var preArgs = "filter=colorize&args=";
-var postArgs = ",64";
-
 $(function() {
     // Load scans
     initScanPanel();
@@ -73,7 +70,7 @@ function initScans(selector, meta) {
         var $preview = $scan.find(".preview");
         
         // Add preview image
-        $preview.find("img").attr("src", scanPath(id, 1, 1));
+        $preview.find("img").attr("src", scanPath(id, 1, 1, $.merge([], meta.filters)));
         
         // Preview click handler
         $preview.click(function() {
@@ -81,6 +78,8 @@ function initScans(selector, meta) {
             
             // Reset view
             view.v = view.h = 1;
+            view.filters = meta.filters;
+            
             loadImg(view.v, view.h);
         });
         
@@ -226,7 +225,7 @@ function loadImg(v, h) {
     var $view = $("#view");
     
     // Format image path
-    var path = scanPath(scanId, v, h);
+    var path = scanPath(scanId, v, h, $.merge([], view.filters));
     
     // Load image
     $view.attr("src", path);
@@ -244,17 +243,38 @@ function addScan(meta) {
     // Add scan to sidebar
     var $scan = factory(".factory", ".scan-thumbnail");
     $scan.data("scanId", meta.id);
+    $scan.data("filters", meta.filters);
     $("#scans .panel-body").append($scan);
     
     initScans($scan, meta);
 }
 
 // Get path to specific scan image
-function scanPath(id, v, h) {
+function scanPath(id, v, h, filters) {
+    if (typeof filters == "undefined") filters = [];
+    var params = {
+        filter: [],
+        args: []
+    };
+    
+    
+    var brightness = $("#brightness").val();
+    var contrast = $("#contrast").val();
+    
+    filters.push(["brightness", [brightness]], ["contrast", [contrast]]);
+    
+    // Parse filters into parameters
+    $.each(filters, function(i, v) {
+        params.filter.push(v[0]);
+        params.args.push(v[1].join(","));
+    });
+
+    console.log("filter paramaters: %o", $.param(params));
+    
     return config.IMG_PATH +
-                padString(v, config.IMG_PAD) + "_" +
-                padString(h, config.IMG_PAD) + ".jpg" +
-                "&" + preArgs + id + postArgs;
+        padString(v, config.IMG_PAD) + "_" +
+        padString(h, config.IMG_PAD) + ".jpg" +
+        "&" + $.param(params);
 }
 
 // Rotate specified view by specified delta
@@ -285,7 +305,9 @@ $('#contrast').slider({
 	formatter: function(value) {
 		return 'Current value: ' + value;
 	}
-});// Clone factory item
+});
+
+// Clone factory item
 function factory(parent, key) {
 	return $(parent + " " + key).clone();
 }
