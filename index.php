@@ -44,6 +44,7 @@ require "config.php";
 							<img id="view" alt="scan" class="img-responsive center-block">
 							<p></p>
 							<div id="controls" class="text-center">
+								<h3 class="scan-id"></h3>
 								<div class="btn-group btn-group-lg" role="group">
 									<button id="scan" type="button" class="btn btn-primary">Scan</button>
 									<button id="test" type="button" class="btn btn-default">Self-test</button>
@@ -84,6 +85,7 @@ require "config.php";
 					<img alt="scan">
 				</a>
 				<div class="caption">
+					<h4 class="scan-id">Scan ID</h4>
 					<button type="button" class="delete btn btn-danger">Delete</button>
 				</div>
 			</div>

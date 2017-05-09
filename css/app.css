@@ -26,3 +26,8 @@ h1 {
 .empty:only-child {
     display: block;
 }
+
+#view {
+    width: 900px;
+    height: 600px;
+}

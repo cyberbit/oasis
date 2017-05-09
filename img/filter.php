@@ -3,7 +3,8 @@
 $image = imagecreatefromjpeg($_REQUEST['filename']);
 
 // Scale image
-$scaledImage = imagescale($image, 600, 400);
+//$scaledImage = imagescale($image, 600, 600);
+$scaledImage = $image;
 
 $filterArray = is_array($_REQUEST['filter']) ? $_REQUEST['filter'] : [$_REQUEST['filter']];
 $argsArray = is_array($_REQUEST['args']) ? $_REQUEST['args'] : [$_REQUEST['args']];

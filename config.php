@@ -6,7 +6,7 @@ define("IMG_PATH", "img/filter.php?filename=");
 define("IMG_PAD", 2);
 
 define("SCAN_DIR", "/home/pi/scantest");
-define("SCAN_SCRIPT", SCAN_DIR."/OasisScanTest.py");
+define("SCAN_SCRIPT", SCAN_DIR . "/OasisScan.py");
 define("SCAN_QUALITY", "very fine"); // standard, fine, very fine
 
 // Image parameters for demo mode

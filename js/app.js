@@ -19,7 +19,7 @@ $(function() {
             
             // Add scans
             $.each(datum.data, function(i, v) {
-                addScan(v);
+                addScan(v, false);
             });
             
             $("#scans .scan-loading").remove();
@@ -57,9 +57,6 @@ function initScans(selector, meta) {
      *      hMax    Maximum horizontal index.
      */
     
-    // Merge metadata into view
-    $.extend(view, meta);
-    
     // Select scans to initialize
     var $scans = $(selector);
     
@@ -70,15 +67,23 @@ function initScans(selector, meta) {
         var $preview = $scan.find(".preview");
         
         // Add preview image
-        $preview.find("img").attr("src", scanPath(id, 1, 1, $.merge([], meta.filters)));
+        $preview.find("img").attr("src", scanPath(id, 0, 0, $.merge([], meta.filters)));
         
         // Preview click handler
         $preview.click(function() {
             scanId = id;
             
+            console.log("Loading %o...", id);
+            
+            // Merge metadata into view
+            $.extend(view, meta);
+            
             // Reset view
-            view.v = view.h = 1;
+            view.v = view.h = 0;
             view.filters = meta.filters;
+            
+            // Show scan ID
+            $("#controls .scan-id").text(id);
             
             loadImg(view.v, view.h);
         });
@@ -121,6 +126,8 @@ function initScans(selector, meta) {
 // Initialize movement controls
 function initControls() {
     $("#scan").click(function() {
+        alert("Check switch and lights before continuing!");
+        
         var $this = $(this);
         
         console.log("Scanning...");
@@ -170,6 +177,9 @@ function initControls() {
                 $this.data("timeout", setTimeout(function() {
                     $this.removeClass("btn-success").text("Self-test");
                 }, 1700));
+                
+                // Show output
+                alert(datum.data.join("\n"));
             }
             
             else {
@@ -183,7 +193,7 @@ function initControls() {
         var datum = $(this).data();
         
         // Rotate view and reload
-        rotateView(view, parseInt(datum.vdelta) || 0, parseInt(datum.hdelta) || 0);
+        rotateView(parseInt(datum.vdelta) || 0, parseInt(datum.hdelta) || 0);
         loadImg(view.v, view.h);
     });
     
@@ -195,16 +205,16 @@ function initControls() {
         // Rotate image
         switch (e.key) {
             case "ArrowLeft":
-                rotateView(view, 0, -1);
+                rotateView(0, -1);
                 break;
             case "ArrowRight":
-                rotateView(view, 0, 1);
+                rotateView(0, 1);
                 break;
             case "ArrowUp":
-                rotateView(view, 1, 0);
+                rotateView(1, 0);
                 break;
             case "ArrowDown":
-                rotateView(view, -1, 0);
+                rotateView(-1, 0);
                 break;
             
             // No applicable key pressed
@@ -227,12 +237,16 @@ function loadImg(v, h) {
     // Format image path
     var path = scanPath(scanId, v, h, $.merge([], view.filters));
     
+    console.log("loading image %o", path);
+    
     // Load image
     $view.attr("src", path);
 }
 
 // Add scan to sidebar
-function addScan(meta) {
+function addScan(meta, prepend) {
+    if (typeof prepend == "undefined") prepend = true;
+    
     // Parse metadata
     scanId = meta.id;
     view.v = meta.vMin;
@@ -244,7 +258,10 @@ function addScan(meta) {
     var $scan = factory(".factory", ".scan-thumbnail");
     $scan.data("scanId", meta.id);
     $scan.data("filters", meta.filters);
-    $("#scans .panel-body").append($scan);
+    $scan.find(".scan-id").text(meta.id);
+    
+    if (prepend) $("#scans .panel-body").prepend($scan);
+    else $("#scans .panel-body").append($scan);
     
     initScans($scan, meta);
 }
@@ -257,7 +274,6 @@ function scanPath(id, v, h, filters) {
         args: []
     };
     
-    
     var brightness = $("#brightness").val();
     var contrast = $("#contrast").val();
     
@@ -268,10 +284,9 @@ function scanPath(id, v, h, filters) {
         params.filter.push(v[0]);
         params.args.push(v[1].join(","));
     });
-
-    console.log("filter paramaters: %o", $.param(params));
     
     return config.IMG_PATH +
+        "OASIS/" + id + "/Oasis" +
         padString(v, config.IMG_PAD) + "_" +
         padString(h, config.IMG_PAD) + ".jpg" +
         "&" + $.param(params);
@@ -279,15 +294,36 @@ function scanPath(id, v, h, filters) {
 
 // Rotate specified view by specified delta
 // (Array crawling via http://stackoverflow.com/a/20000227/3402854)
-function rotateView(view, vDelta, hDelta) {
+function rotateView(vDelta, hDelta) {
     /**
      * Array crawling code adapted from http://stackoverflow.com/a/20000227/3402854
      *
      * Using offsets (-1, +1) on the initial and final view values
      * corrects for the 1-based index used by the images.
      */
-    view.v = (((view.v - 1) + vDelta) % view.vMax + view.vMax) % view.vMax + 1;
-    view.h = (((view.h - 1) + hDelta) % view.hMax + view.hMax) % view.hMax + 1;
+    /*view.v = (((view.v - 1) + vDelta) % view.vMax + view.vMax) % view.vMax + 1;
+    view.h = (((view.h - 1) + hDelta) % view.hMax + view.hMax) % view.hMax + 1;*/
+    
+    /*var vNew = view.v + vDelta;
+    if (vNew < view.vMin || vNew > view.vMax) vNew = view.v;
+    
+    view.v = vNew;
+    view.h = (((view.h) + hDelta) % view.hMax + view.hMax) % view.hMax;*/
+    
+    // Do not loop vertical segment
+    var vNew = view.v + vDelta;
+    if (vNew > view.vMax) vNew = Math.min(view.vMax, vNew);
+    if (vNew < view.vMin) vNew = Math.max(view.vMin, vNew);
+    
+    view.v = vNew;
+    
+    // Calculate image count
+    var hCount = view.hMax - view.hMin + 1;
+    
+    //var hActual = ((view.h + hDelta) % hCount + hCount) % hCount;
+    var hTheory = (hDelta + view.h + hCount) % hCount;
+    
+    view.h = hTheory;
 }
 
 // Return original string padded to specified length

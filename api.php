@@ -68,6 +68,7 @@ $formScan = function($path) {
     // Return data structure
     return [
         "id" => $scanId,
+        "filters" => [],
         "path" => dirname($path),
         "pad" => 2,
         "vMin" => $vMin,
@@ -171,7 +172,12 @@ switch ($action) {
                 $data = [
                     "context" => "success",
                     "msg" => "Scanned!",
-                    "data" => $scan
+                    "data" => $scan,
+                    "debug" => [
+                        "exec" => $exec,
+                        "output" => $output,
+                        "return" => $return
+                    ]
                 ];
                 
                 $success = true;
@@ -201,14 +207,7 @@ switch ($action) {
         
         else {
             // Read list of directories from master scan directory
-            $scanIDs = array_values(array_filter(array_diff(scandir(SCAN_DIR), [".", ".."]), function($v) {
-                return strstr($v, "scan_");
-            }));
-            
-            // Prepend scan directories with full scan path
-            $scanDirs = array_map(function($id) {
-                return SCAN_DIR."/".$id;
-            }, $scanIDs);
+            $scanDirs = glob(SCAN_DIR . DIRECTORY_SEPARATOR . "scan_*", GLOB_ONLYDIR);
             
             // Iterate scan list and form scan for each item
             $scans = array_values(array_filter(array_map($formScan, $scanDirs)));
@@ -216,11 +215,7 @@ switch ($action) {
             // Return scan list
             $data = [
                 "context" => "success",
-                "data" => $scans,
-                "debug" => [
-                    "scanIDs" => $scanIDs,
-                    "scanDirs" => $scanDirs
-                ]
+                "data" => $scans
             ];
         }
         
@@ -243,20 +238,47 @@ switch ($action) {
                 "context" => "success",
                 "msg" => "Done!"
             ];
+            
+            $success = true;
         }
         
         else {
-            // Request self-test via Python
+            // Command to run
+            $exec = "python " . SCAN_DIR . "/selftest.py 2>&1";
             
-            // Return any output from script
-            $data = [
-                "context" => "success",
-                "msg" => "Done!",
-                "data" => ["change" => 2, "script" => "output"]
-            ];
+            // Request communication self-test via Python
+            exec($exec, $output, $return);
+            
+            exec("python -c \"print('test 1.5: it works!')\" 2>&1", $output2, $return2);
+            
+            // Merge outputs
+            $outputMerged = array_merge($output, $output2);
+            
+            // Some error occurred
+            if ($return || $return2) {
+                $data = [
+                    "msg" => "Oops!",
+                    "error" => [
+                        "exec" => $exec,
+                        "output" => $outputMerged,
+                        "return" => $return,
+                        "return2" => $return2
+                    ]
+                ];
+            }
+            
+            // No errors
+            else {
+                // Form output
+                $data = [
+                    "context" => "success",
+                    "msg" => "Done!",
+                    "data" => $outputMerged
+                ];
+                
+                $success = true;
+            }
         }
-        
-        $success = true;
         
         break;
     
@@ -287,19 +309,40 @@ switch ($action) {
         
         else {
             // Find directory of images
+            $scan = SCAN_DIR . DIRECTORY_SEPARATOR . $id;
             
-            // Count images in directory
+            // If scan doesn't exist, return error
+            if (!is_dir($scan)) {
+                $data = [
+                    "msg" => "Invalid scan ID!"
+                ];
+            }
             
-            // Delete all images
-            
-            // Delete directory
-            
-            // Return appropriate information
-            $data = [
-                "context" => "success",
-                "msg" => "Deleted scan '$id'",
-                "data" => ["id" => "and numDeleted"]
-            ];
+            else {
+                $scanDir = SCAN_DIR . DIRECTORY_SEPARATOR . $id;
+                
+                // Grab list of images from directory
+                $images = glob($scanDir . DIRECTORY_SEPARATOR . "Oasis*.jpg");
+                
+                // Count images in directory
+                $imageCount = count($images);
+                
+                // Delete all images
+                foreach ($images as $image) unlink($image);
+                
+                // Delete directory
+                rmdir($scanDir);
+                
+                // Return appropriate information
+                $data = [
+                    "context" => "success",
+                    "msg" => "Deleted scan '$id'",
+                    "data" => [
+                        "id" => $id,
+                        "images" => $imageCount
+                    ]
+                ];
+            }
         }
         
         
